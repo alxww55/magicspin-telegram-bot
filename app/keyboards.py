@@ -15,9 +15,9 @@ async def create_captcha_keyboard(user_id: int) -> tuple:
 
     return keyboard.adjust(2).as_markup(), correct_emoji
 
-main_menu_keyboard = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text="Play 🎰")],
-    [KeyboardButton(text="Profile 👤"), KeyboardButton(text="Support 🛠️")]],
-    input_field_placeholder="Choose an action below:",
-    one_time_keyboard=True,
-    resize_keyboard=True)
+main_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Magic Spin 🎰", callback_data="main:spin")],
+    [InlineKeyboardButton(text="Profile 👤", callback_data="main:profile"), InlineKeyboardButton(text="Earn coins 🪙", callback_data="main:earn")],
+    [InlineKeyboardButton(text="Support 🛠️", callback_data="main:support"), InlineKeyboardButton(text="Rules 📖", callback_data="main:rules")]])
+
+# back_to_main_btn = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Main menu 🔍", callback_data="main_menu")]])
