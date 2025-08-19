@@ -20,4 +20,7 @@ main_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Profile 👤", callback_data="main:profile"), InlineKeyboardButton(text="Earn coins 🪙", callback_data="main:earn")],
     [InlineKeyboardButton(text="Support 🛠️", callback_data="main:support"), InlineKeyboardButton(text="Rules 📖", callback_data="main:rules")]])
 
-# back_to_main_btn = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Main menu 🔍", callback_data="main_menu")]])
+bid_amounts_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="10 🪙", callback_data="bid_amount:10"), InlineKeyboardButton(text="20 🪙", callback_data="bid_amount:20")],
+    [InlineKeyboardButton(text="50 🪙", callback_data="bid_amount:50"), InlineKeyboardButton(text="100 🪙", callback_data="bid_amount:100")],
+    [InlineKeyboardButton(text="Cancel ❌", callback_data="cancel")]])
