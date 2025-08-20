@@ -24,3 +24,8 @@ bid_amounts_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="10 🪙", callback_data="bid_amount:10"), InlineKeyboardButton(text="20 🪙", callback_data="bid_amount:20")],
     [InlineKeyboardButton(text="50 🪙", callback_data="bid_amount:50"), InlineKeyboardButton(text="100 🪙", callback_data="bid_amount:100")],
     [InlineKeyboardButton(text="Cancel ❌", callback_data="cancel")]])
+
+add_coins_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Add 50 🪙", callback_data="add_coins:50"), InlineKeyboardButton(text="Add 100 🪙", callback_data="add_coins:100")],
+    [InlineKeyboardButton(text="Add 500 🪙", callback_data="add_coins:500"), InlineKeyboardButton(text="Add 1000 🪙", callback_data="add_coins:1000")],
+    [InlineKeyboardButton(text="Cancel ❌", callback_data="cancel")]])

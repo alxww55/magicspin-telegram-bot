@@ -1,24 +1,34 @@
+import os
 import asyncio
 import redis.asyncio as redis
-import os
 from dotenv import load_dotenv
 
 import app.database.requests as rq
 
 load_dotenv()
 
-async def calculate_login_attempts(id: int):
-    async with redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), decode_responses=True) as redis_conn:
-        await redis_conn.incr(id)
+# redis_instance =  
 
-async def get_cached_attempts(id: int):
+async def handle_login_attempts(id: int):
     async with redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), decode_responses=True) as redis_conn:
-        return await redis_conn.get(id)
-    
-async def clear_login_attempts(id: int): 
-    async with redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), decode_responses=True) as redis_conn:
-        await redis_conn.delete(id)
+        key = str(id) + "_" + "login"
+        await redis_conn.incr(key)
+        await redis_conn.expire(key, 600)
+        return await redis_conn.get(key)
 
-async def load_coins_into_cache(id: int):
+async def get_coins_qty(id: int):
     async with redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), decode_responses=True) as redis_conn:
-        return await redis_conn.set("user_coins", rq.get_coins_by_user_id(id))
+        key = str(id) + "_" + "user_coins"
+        value = await redis_conn.get(key)
+        
+        if not value:
+            coins = await rq.get_coins_by_user_id(id)
+            await redis_conn.set(id, coins)
+            return coins
+        
+        return value
+
+async def change_coins_qty(id: int, coins_amount: int):
+    async with redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), decode_responses=True) as redis_conn:
+        key = str(id) + "_" + "user_coins"
+        await redis_conn.set(key, coins_amount)
