@@ -20,7 +20,7 @@ async def add_user_to_authorized(user_id):
             await session.delete(unauthorized_user)
         
         if not authorized_user:
-            session.add(AuthorizedUser(user_id=user_id, coins=1000))
+            session.add(AuthorizedUser(user_id=user_id, coins=1000, timestamp=datetime.now()))
         
         await session.commit()
 
