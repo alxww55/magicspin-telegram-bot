@@ -18,20 +18,20 @@ class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 
-class UnauthorizedUser(Base):
-    __tablename__ = "unauthorized_users"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id = mapped_column(BigInteger)
-    timestamp = mapped_column(DateTime(timezone=True))
-
-
 class AuthorizedUser(Base):
     __tablename__ = "authorized_users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id = mapped_column(BigInteger)
     coins: Mapped[int] = mapped_column()
+    timestamp = mapped_column(DateTime(timezone=True))
+
+
+class BlacklistedUser(Base):
+    __tablename__ = "blacklisted_users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id = mapped_column(BigInteger)
     timestamp = mapped_column(DateTime(timezone=True))
 
 
