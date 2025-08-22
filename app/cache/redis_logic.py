@@ -28,8 +28,7 @@ class UserSession():
                 await self.init_instance_from_scratch()
 
     async def touch(self):
-        fields = ["id", "user_id", "authorized", "coins", "timestamp"]
-        await redis_client.hexpire(f"user_session:{self.user_id}", 1800, *fields)
+        await redis_client.hexpire(f"user_session:{self.user_id}", 1800, "id", "user_id", "authorized", "coins", "timestamp")
 
     async def init_instance_from_scratch(self):
         await redis_client.hset(f"user_session:{self.user_id}", mapping={
