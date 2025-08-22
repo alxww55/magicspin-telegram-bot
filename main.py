@@ -7,10 +7,11 @@ from app.handlers import router
 from app.database.models import async_main
 from app.worker import push_all_users_to_db
 
+
 async def main():
+    load_dotenv()
     await async_main()
     asyncio.create_task(push_all_users_to_db())
-    load_dotenv()
     bot = Bot(token=os.getenv("BOT_API_KEY"))
     dp = Dispatcher()
     dp.include_router(router)
