@@ -109,13 +109,15 @@ async def get_profile(callback: CallbackQuery) -> None:
     except TelegramBadRequest as e:
         print(e.message)
 
+
 @router.callback_query(F.data == "main:rules")
 async def get_rules(callback: CallbackQuery) -> None:
-    try: 
+    try:
         await callback.answer(None)
         await callback.message.edit_text(f'{html.bold("Rules")} 📖\n\n1. This project is for portfolio/demo purposes only\n2. This bot uses fake/demo coins — not real money\n3. Spamming or flooding will add you to the blacklist\n4. Removal from the blacklist is only possible via deletion from database. (In real-world project it would be done by admin)\n5. Commercial use or modifications for commercial use are allowed only with author’s permission and proper credit.\n\n{html.bold("Feel free to test/redact the bot!")}', parse_mode="html", reply_markup=kb.single_back_button)
     except TelegramBadRequest as e:
         print(e.message)
+
 
 @router.callback_query(F.data == "cancel")
 async def go_to_main_from_bid_menu(callback: CallbackQuery):

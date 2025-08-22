@@ -11,6 +11,7 @@ load_dotenv()
 
 MESSAGES_PER_PERIOD = int(os.getenv("MESSAGES_PER_PERIOD"))
 
+
 class BaseMiddlware(ABC):
     @abstractmethod
     async def __call__(

@@ -35,4 +35,5 @@ add_coins_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         text="Add 1000 🪙", callback_data="add_coins:1000")],
     [InlineKeyboardButton(text="Cancel ❌", callback_data="cancel")]])
 
-single_back_button = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Back to main", callback_data="cancel")]])
+single_back_button = InlineKeyboardMarkup(inline_keyboard=[
+                                          [InlineKeyboardButton(text="⬅️ Back to main", callback_data="cancel")]])
