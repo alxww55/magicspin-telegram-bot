@@ -37,7 +37,7 @@ async def add_user_to_blacklist(user_id: int):
 
         if authorized_user:
             await session.execute(delete(AuthorizedUser).where(AuthorizedUser.user_id == user_id))
-            
+
         if not blacklisted_user:
             session.add(BlacklistedUser(
                 user_id=user_id, timestamp=datetime.now()))
@@ -45,5 +45,4 @@ async def add_user_to_blacklist(user_id: int):
 
 
 async def get_user_from_blacklist(user_id: int):
-    async with async_session() as session:
-        return bool(await helper_get_user(BlacklistedUser, user_id))
+    return bool(await helper_get_user(BlacklistedUser, user_id))

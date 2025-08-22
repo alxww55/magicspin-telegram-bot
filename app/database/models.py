@@ -1,7 +1,7 @@
 import asyncio
 import os
 from dotenv import load_dotenv
-from sqlalchemy import BigInteger, String, DateTime
+from sqlalchemy import BigInteger, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 

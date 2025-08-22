@@ -51,13 +51,13 @@ async def check_if_human(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(F.data == "main:spin")
 async def get_bid_amount(callback: CallbackQuery) -> None:
     await callback.answer(None)
-    await callback.message.edit_text(f'Choose the Bid Amount from below:', reply_markup=kb.bid_amounts_keyboard)
+    await callback.message.edit_text("Choose the Bid Amount from below:", reply_markup=kb.bid_amounts_keyboard)
 
 
 @router.callback_query(F.data == "main:earn")
 async def add_coins_from_main(callback: CallbackQuery) -> None:
     await callback.answer(None)
-    await callback.message.edit_text(f'Choose amount for a top up from below:', reply_markup=kb.add_coins_keyboard)
+    await callback.message.edit_text("Choose amount for a top up from below:", reply_markup=kb.add_coins_keyboard)
 
 
 @router.callback_query(F.data.startswith("bid_amount:"))
@@ -110,7 +110,7 @@ async def get_profile(callback: CallbackQuery) -> None:
         print(e.message)
 
 @router.callback_query(F.data == "main:rules")
-async def get_profile(callback: CallbackQuery) -> None:
+async def get_rules(callback: CallbackQuery) -> None:
     try: 
         await callback.answer(None)
         await callback.message.edit_text(f'{html.bold("Rules")} 📖\n\n1. This project is for portfolio/demo purposes only\n2. This bot uses fake/demo coins — not real money\n3. Spamming or flooding will add you to the blacklist\n4. Removal from the blacklist is only possible via deletion from database. (In real-world project it would be done by admin)\n5. Commercial use or modifications for commercial use are allowed only with author’s permission and proper credit.\n\n{html.bold("Feel free to test/redact the bot!")}', parse_mode="html", reply_markup=kb.single_back_button)

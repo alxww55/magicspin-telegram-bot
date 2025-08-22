@@ -16,5 +16,5 @@ async def push_all_users_to_db():
             else:
                 user_form_db = await rq.get_user_from_authorized(user_id)
                 coins = user_form_db.coins
-                await session.change_coins_qty(user_id, coins)
+                await session.change_coins_qty(coins)
         await asyncio.sleep(60)
