@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 from dotenv import load_dotenv
 from sqlalchemy import BigInteger, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -11,7 +12,9 @@ engine = create_async_engine(
     url=f"postgresql+psycopg://{os.getenv("POSTGRES_USER")}:{os.getenv("POSTGRES_PASSWORD")}@{os.getenv("POSTGRES_HOST")}:{os.getenv("POSTGRES_PORT")}/{os.getenv("POSTGRES_DB")}")
 
 async_session = async_sessionmaker(engine)
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 class Base(AsyncAttrs, DeclarativeBase):
