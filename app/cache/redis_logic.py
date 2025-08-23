@@ -10,6 +10,8 @@ RATE_LIMITING_PERIOD = int(os.getenv("RATE_LIMITING_PERIOD"))
 redis_client = redis.Redis(
     host=os.getenv("REDIS_HOST"),
     port=os.getenv("REDIS_PORT"),
+    username=os.getenv("REDIS_USER"),
+    password=os.getenv("REDIS_PASSWORD"),
     decode_responses=True
 )
 
