@@ -9,6 +9,7 @@ from aiogram.exceptions import TelegramBadRequest
 import app.keyboards as kb
 from app.cache.redis_logic import UserSession
 from app.middleware import RateLimiter, RegisterUser
+banner_text = f'🎰 {html.bold("Magic Spin - Slot machine simulator")}\n\n💸 Win {html.bold("combinations:")}\n\n7️⃣7️⃣7️⃣ = Bid Amount x10\n⬜️⬜️⬜️ = Bid Amount x5\n🍋🍋🍋 = Bid Amount x2\n🍇🍇🍇 = Bid Amount x2\n\n{html.bold("This project is a non-commercial simulation of Telegram’s slot machine dice feature. It has been developed solely for educational and demonstration purposes.")}'
 
 router = Router()
 router.message.middleware(RateLimiter())
@@ -30,7 +31,6 @@ async def handle_cmd_start(message: Message, state: FSMContext) -> None:
         keyboard, correct_emoji = await kb.create_captcha_keyboard(message.from_user.id)
         await message.answer(f'Hello, {message.from_user.first_name},\nwelcome to Magic Spin Slot Machine Simulator!\n\nSolve a captcha to proceed\n\nClick on {correct_emoji} button below', reply_markup=keyboard)
 
-
 @router.callback_query(F.data.startswith("captcha:"))
 async def check_if_human(callback: CallbackQuery, state: FSMContext) -> None:
     _, chosen_emoji, correct, user_id = callback.data.split(":")
@@ -42,7 +42,7 @@ async def check_if_human(callback: CallbackQuery, state: FSMContext) -> None:
         await session.get_coins_qty()
         await callback.answer(None)
         await callback.message.edit_text("You solved captcha! ✅")
-        await callback.message.answer(f'🎰 {html.bold("Magic Spin - Slot machine simulator")}\n\n💸 Win {html.bold("combinations:")}\n\n7️⃣7️⃣7️⃣ = Bid Amount x10\n⬜️⬜️⬜️ = Bid Amount x5\n🍋🍋🍋 = Bid Amount x2\n🍇🍇🍇 = Bid Amount x2\n\n{html.bold("This project is a non-commercial simulation of Telegram’s slot machine dice feature. It has been developed solely for educational and demonstration purposes.")}', parse_mode="html", reply_markup=kb.main_menu_keyboard)
+        await callback.message.answer(banner_text, parse_mode="html", reply_markup=kb.main_menu_keyboard)
     else:
         await callback.answer("False!")
         await callback.message.edit_text("Try again! ⛔")
@@ -101,24 +101,19 @@ async def add_coins_from_spin(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "main:profile")
 async def get_profile(callback: CallbackQuery) -> None:
-    try:
-        session = UserSession(callback.from_user.id)
-        await session.ensure_session()
-        await callback.answer(None)
-        await callback.message.edit_text(f'{html.bold("Your profile")} 👤\n\nName: {callback.from_user.full_name}\nCoins: {await session.get_coins_qty()} 🪙', parse_mode="html", reply_markup=kb.single_back_button)
-    except TelegramBadRequest as e:
-        print(e.message)
+    session = UserSession(callback.from_user.id)
+    await session.ensure_session()
+    await callback.answer(None)
+    await callback.message.edit_text(f'{html.bold("Your profile")} 👤\n\nName: {callback.from_user.full_name}\nCoins: {await session.get_coins_qty()} 🪙', parse_mode="html", reply_markup=kb.single_back_button)
 
 
 @router.callback_query(F.data == "main:rules")
 async def get_rules(callback: CallbackQuery) -> None:
-    try:
-        await callback.answer(None)
-        await callback.message.edit_text(f'{html.bold("Rules")} 📖\n\n1. This project is for portfolio/demo purposes only\n2. This bot uses fake/demo coins — not real money\n3. Spamming or flooding will add you to the blacklist\n4. Removal from the blacklist is only possible via deletion from database. (In real-world project it would be done by admin)\n5. Commercial use or modifications for commercial use are allowed only with author’s permission and proper credit.\n\n{html.bold("Feel free to test/redact the bot!")}', parse_mode="html", reply_markup=kb.single_back_button)
-    except TelegramBadRequest as e:
-        print(e.message)
+    await callback.answer(None)
+    await callback.message.edit_text(f'{html.bold("Rules")} 📖\n\n1. This project is for portfolio/demo purposes only\n2. This bot uses fake/demo coins — not real money\n3. Spamming or flooding will add you to the blacklist\n4. Removal from the blacklist is only possible via deletion from database. (In real-world project it would be done by admin)\n5. Commercial use or modifications for commercial use are allowed only with author’s permission and proper credit.\n\n{html.bold("Feel free to test/redact the bot!")}', parse_mode="html", reply_markup=kb.single_back_button)
 
 
 @router.callback_query(F.data == "cancel")
 async def go_to_main_from_bid_menu(callback: CallbackQuery):
-    await callback.message.edit_text(f'🎰 {html.bold("Magic Spin - Slot machine simulator")}\n\n💸 You can win following {html.bold("prizes:")}\n\n7️⃣7️⃣7️⃣ = Bid Amount x10\n\n⬜️⬜️⬜️ = Bid Amount x5\n\n🍋🍋🍋 = Bid Amount x2\n\n🍇🍇🍇 = Bid Amount x2\n\nThis is just a simulator\n\n🎰 {html.bold("Spin now and WIN!")}', parse_mode="html", reply_markup=kb.main_menu_keyboard)
+    await callback.answer(None)
+    await callback.message.edit_text(banner_text, parse_mode="html", reply_markup=kb.main_menu_keyboard)
