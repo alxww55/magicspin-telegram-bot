@@ -20,6 +20,13 @@ class AuthorizationStatus(StatesGroup):
     unathorized = State()
     authorized = State()
 
+async def get_coins(callback_from_handler: CallbackQuery):
+    amount = int(callback_from_handler.data.split(":")[1])
+    session = UserSession(callback_from_handler.from_user.id)
+    await session.ensure_session()
+    cached_coins = int(await session.get_coins_qty())
+    return amount, session, cached_coins
+
 
 @router.message(CommandStart())
 async def handle_cmd_start(message: Message, state: FSMContext) -> None:
@@ -61,10 +68,7 @@ async def add_coins_from_main(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("bid_amount:"))
 async def send_slotmachine(callback: CallbackQuery) -> None:
-    amount = int(callback.data.split(":")[1])
-    session = UserSession(callback.from_user.id)
-    await session.ensure_session()
-    cached_coins = int(await session.get_coins_qty())
+    amount, session, cached_coins = await get_coins(callback)
     await callback.answer(None)
     if cached_coins > 0 and cached_coins >= amount:
         await callback.message.edit_text(f'You chose {amount} 🪙', reply_markup=None)
@@ -89,10 +93,7 @@ async def send_slotmachine(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("add_coins:"))
 async def add_coins_from_spin(callback: CallbackQuery) -> None:
-    amount = int(callback.data.split(":")[1])
-    session = UserSession(callback.from_user.id)
-    await session.ensure_session()
-    cached_coins = int(await session.get_coins_qty())
+    amount, session, cached_coins = await get_coins(callback)
     await callback.answer(None)
     await session.change_coins_qty((cached_coins + amount))
     await callback.message.edit_text(f'Your balance is {cached_coins + amount} 🪙\n\nChoose an action from below:', reply_markup=kb.main_menu_keyboard)
