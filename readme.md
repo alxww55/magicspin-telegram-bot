@@ -69,15 +69,9 @@ so that looks like: `user redis_usr on >my_strong_password allcommands allkeys`.
 Now open Telegram, start your bot, and have a nice game!
 
 ### Stopping an app
+
 Please ensure you are stopping an app with `docker compose stop`. Using of `docker compose down` can lead to data loss.
 
 ## Disclaimer
 
 This bot uses demo coins — not real money. Project was built for mastering skill and demo/portfolio purposes only.
-
-
-
-
-
-
-
