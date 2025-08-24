@@ -61,7 +61,7 @@ so that looks like: `user redis_usr on >my_strong_password allcommands allkeys`.
 ### Run with Docker Compose
 
 1. Open a terminal and navigate to the folder where the project's `docker-compose.yaml` is located.
-2. Execute: `docker-compose --build`
+2. Execute: `docker compose build`
 3. Execute `docker compose up -d`
 
 ### Ready to play around
@@ -71,6 +71,7 @@ Now open Telegram, start your bot, and have a nice game!
 ## Disclaimer
 
 This bot uses demo coins — not real money. Project was built for mastering skill and demo/portfolio purposes only.
+
 
 
 
