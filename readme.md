@@ -55,6 +55,7 @@ user {REDIS_USER from .env} on >{REDIS_PASSWORD from .env} {allowed commands, de
 ```
 
 so that looks like: `user redis_usr on >my_strong_password allcommands allkeys`
+6. Rename the file to `redis.conf`
 
 ### Run with Docker Compose
 
