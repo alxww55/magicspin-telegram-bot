@@ -1,3 +1,14 @@
+"""
+Inline keyboards for the MagicSpin Telegram bot.
+
+This module provides:
+- Captcha keyboard generator
+- Main menu keyboard
+- Bid selection keyboard
+- Add coins keyboard
+- Back button keyboard
+"""
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -5,6 +16,14 @@ from app.captcha import emojis_list, choose_control_emoji, generate_captcha_item
 
 
 async def create_captcha_keyboard(user_id: int) -> tuple:
+    '''Create an inline captcha keyboard for user verification.
+
+    args:
+        user_id (int): Telegram User ID
+
+    return:
+        tuple: (InlineKeyboardMarkup, str) - keyboard and correct emoji
+    '''
     keyboard = InlineKeyboardBuilder()
     correct_emoji = choose_control_emoji(emojis_list)
     captcha_items = generate_captcha_items(correct_emoji)

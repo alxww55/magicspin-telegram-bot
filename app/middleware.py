@@ -1,3 +1,11 @@
+"""
+Custom Aiogram middleware for user rate limiting and registration.
+
+This module provides:
+- RateLimiter: Limits the number of messages or callbacks a user can send within a time period. Blacklists users who exceed the limit.
+- RegisterUser: Ensures that users are registered in the session and authorized in the database.
+"""
+
 import os
 from dotenv import load_dotenv
 from abc import ABC, abstractmethod
@@ -24,8 +32,25 @@ class BaseMiddlware(ABC):
 
 
 class RateLimiter(BaseMiddlware):
-    async def __call__(self, handler, event, data) -> Callable | None:
+    """
+    Middleware to limit the number of messages/callbacks a user can send.
 
+    - Checks if the user is blacklisted.
+    - Limits messages per MESSAGES_PER_PERIOD.
+    - Adds users to blacklist if limit exceeded.
+    """
+    async def __call__(self, handler, event, data) -> Callable | None:
+        """
+        Check and enforce message rate limits for the user.
+
+        Args:
+            handler (Callable): The next handler in the middleware chain.
+            event (TelegramObject): Incoming Telegram event (Message or CallbackQuery).
+            data (Dict[str, Any]): Additional data passed to the handler.
+
+        Returns:
+            Callable | None: Executes the handler if user is within limits, otherwise None.
+        """
         is_blacklisted = await db.get_user_from_blacklist(event.from_user.id)
         if is_blacklisted:
             return
@@ -51,8 +76,25 @@ class RateLimiter(BaseMiddlware):
 
 
 class RegisterUser(BaseMiddlware):
-    async def __call__(self, handler, event, data) -> Callable | None:
+    """
+    Middleware to register users in the session and database.
 
+    - Checks if user is authorized on every event
+    - Ensures the user's session exists.
+    - Adds user to authorized users if not already present.
+    """
+    async def __call__(self, handler, event, data) -> Callable | None:
+        """
+        Register the user and ensure authorization status.
+
+        Args:
+            handler (Callable): The next handler in the middleware chain.
+            event (TelegramObject): Incoming Telegram event (Message or CallbackQuery).
+            data (Dict[str, Any]): Additional data passed to the handler.
+
+        Returns:
+            Callable | None: Executes the handler after ensuring registration.
+        """
         session = UserSession(event.from_user.id)
         await session.ensure_session()
         auth_status = await session.check_authorization_status()

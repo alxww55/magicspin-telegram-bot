@@ -1,3 +1,14 @@
+"""
+Async database models and engine setup for managing authorized and blacklisted users.
+
+This module provides:
+- SQLAlchemy async engine and session setup
+- Base declarative models
+- Tables for authorized and blacklisted users
+
+All database operations should be performed using async sessions.
+"""
+
 import asyncio
 import os
 import sys
@@ -18,10 +29,12 @@ if sys.platform == 'win32':
 
 
 class Base(AsyncAttrs, DeclarativeBase):
+    """Base class for all database models."""
     pass
 
 
 class AuthorizedUser(Base):
+    """Represents an authorized user in the database."""
     __tablename__ = "authorized_users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -31,6 +44,7 @@ class AuthorizedUser(Base):
 
 
 class BlacklistedUser(Base):
+    """Represents a blacklisted user in the database."""
     __tablename__ = "blacklisted_users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -38,6 +52,7 @@ class BlacklistedUser(Base):
     timestamp = mapped_column(DateTime(timezone=True))
 
 
-async def async_main():
+async def async_main() -> None:
+    """Create all tables in the database if they do not exist."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

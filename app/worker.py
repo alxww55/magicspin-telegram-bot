@@ -1,9 +1,23 @@
+"""
+Background task to synchronize user coin balances from Redis to the database.
+
+This module defines an async function that:
+- Periodically retrieves all user sessions from Redis.
+- Ensures consistency between cache and database.
+"""
+
 import asyncio
 from app.cache.redis_logic import redis_client, UserSession
 import app.database.requests as rq
 
 
 async def push_all_users_to_db():
+    """
+    Continuously push all user coin balances from Redis to the database.
+
+    - Runs indefinitely with a 60-second interval between updates.
+
+    """
     await asyncio.sleep(10)
     while True:
         keys = await redis_client.keys("user_session:*")

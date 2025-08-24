@@ -1,3 +1,15 @@
+"""
+Telegram slot machine bot handlers using Aiogram.
+
+This module defines:
+- Message and callback query handlers for Magic Spin slot machine simulator.
+- Captcha-based user authorization.
+- Slot machine spin logic, coin management, and profile display.
+- Bid selection, coin top-up, and rules display.
+
+All handlers are async and use FSMContext for user states, and Redis-based UserSession for coin storage.
+"""
+
 import asyncio
 from aiogram import F, Router, html
 from aiogram.filters import CommandStart
@@ -20,7 +32,16 @@ class AuthorizationStatus(StatesGroup):
     unathorized = State()
     authorized = State()
 
-async def get_coins(callback_from_handler: CallbackQuery):
+async def get_coins(callback_from_handler: CallbackQuery) -> tuple:
+    """
+    Retrieve the bid amount and current coin balance for a user.
+
+    Args:
+        callback_from_handler (CallbackQuery): The callback query triggered by the user.
+
+    Returns:
+        tuple: (bid_amount, UserSession object, cached_coins)
+    """
     amount = int(callback_from_handler.data.split(":")[1])
     session = UserSession(callback_from_handler.from_user.id)
     await session.ensure_session()
@@ -30,6 +51,17 @@ async def get_coins(callback_from_handler: CallbackQuery):
 
 @router.message(CommandStart())
 async def handle_cmd_start(message: Message, state: FSMContext) -> None:
+    """
+    Handle the /start command.
+
+    - Checks user authorization status.
+    - Sends a captcha for verification.
+    - Displays welcome message and main menu upon success.
+
+    Args:
+        message (Message): Incoming message object.
+        state (FSMContext): FSM context for the user state.
+    """
     if await state.get_state() == AuthorizationStatus.authorized:
         await message.answer("Already logged in", reply_markup=kb.main_menu_keyboard)
     else:
@@ -39,6 +71,13 @@ async def handle_cmd_start(message: Message, state: FSMContext) -> None:
 
 @router.callback_query(F.data.startswith("captcha:"))
 async def check_if_human(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Check the user's captcha response and authorize if correct.
+
+    Args:
+        callback (CallbackQuery): The callback query triggered by the captcha button.
+        state (FSMContext): FSM context for the user state.
+    """
     _, chosen_emoji, correct, user_id = callback.data.split(":")
     session = UserSession(user_id)
     await session.ensure_session()
@@ -56,18 +95,40 @@ async def check_if_human(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "main:spin")
 async def get_bid_amount(callback: CallbackQuery) -> None:
+    """
+    Prompt the user to choose a bid amount for a spin.
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by "Spin" button.
+    """
     await callback.answer(None)
     await callback.message.edit_text("Choose the Bid Amount from below:", reply_markup=kb.bid_amounts_keyboard)
 
 
 @router.callback_query(F.data == "main:earn")
 async def add_coins_from_main(callback: CallbackQuery) -> None:
+    """
+    Prompt the user to choose an amount to add coins (top-up).
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by "Get Coins" button.
+    """
     await callback.answer(None)
     await callback.message.edit_text("Choose amount for a top up from below:", reply_markup=kb.add_coins_keyboard)
 
 
 @router.callback_query(F.data.startswith("bid_amount:"))
 async def send_slotmachine(callback: CallbackQuery) -> None:
+    """
+    Perform the slot machine spin based on user's bid.
+
+    - Deducts coins for the bid.
+    - Determines prize multiplier based on slot result.
+    - Updates user coin balance accordingly.
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by a bid amount button.
+    """
     amount, session, cached_coins = await get_coins(callback)
     await callback.answer(None)
     if cached_coins > 0 and cached_coins >= amount:
@@ -93,6 +154,12 @@ async def send_slotmachine(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("add_coins:"))
 async def add_coins_from_spin(callback: CallbackQuery) -> None:
+    """
+    Top up user's balance.
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by an "Add Coins" button.
+    """
     amount, session, cached_coins = await get_coins(callback)
     await callback.answer(None)
     await session.change_coins_qty((cached_coins + amount))
@@ -101,6 +168,12 @@ async def add_coins_from_spin(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "main:profile")
 async def get_profile(callback: CallbackQuery) -> None:
+    """
+    Show the user's profile with name from Telegram and coin balance.
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by "Profile" button.
+    """
     session = UserSession(callback.from_user.id)
     await session.ensure_session()
     await callback.answer(None)
@@ -109,11 +182,23 @@ async def get_profile(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "main:rules")
 async def get_rules(callback: CallbackQuery) -> None:
+    """
+    Display bot rules.
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by "Rules" button.
+    """
     await callback.answer(None)
     await callback.message.edit_text(f'{html.bold("Rules")} 📖\n\n1. This project is for portfolio/demo purposes only\n2. This bot uses fake/demo coins — not real money\n3. Spamming or flooding will add you to the blacklist\n4. Removal from the blacklist is only possible via deletion from database. (In real-world project it would be done by admin)\n5. Commercial use or modifications for commercial use are allowed only with author’s permission and proper credit.\n\n{html.bold("Feel free to test/redact the bot!")}', parse_mode="html", reply_markup=kb.single_back_button)
 
 
 @router.callback_query(F.data == "cancel")
 async def go_to_main_from_bid_menu(callback: CallbackQuery):
+    """
+    Return the user to the main menu from bid or add coins menus.
+
+    Args:
+        callback (CallbackQuery): Callback query triggered by "Cancel" button.
+    """
     await callback.answer(None)
     await callback.message.edit_text(banner_text, parse_mode="html", reply_markup=kb.main_menu_keyboard)

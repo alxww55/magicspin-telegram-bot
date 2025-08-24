@@ -9,6 +9,12 @@ from app.worker import push_all_users_to_db
 
 
 async def main():
+    """
+    Main function, does following:
+    - Creates all tables in the database if they do not exist.
+    - Initializes bot and bot instance
+    - Includes router and starts polling
+    """
     load_dotenv()
     await async_main()
     asyncio.create_task(push_all_users_to_db())
