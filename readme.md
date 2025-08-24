@@ -54,7 +54,7 @@ MESSAGES_PER_PERIOD: How many messages a user is allowed to send during the rate
 user {REDIS_USER from .env} on >{REDIS_PASSWORD from .env} {allowed commands, default - allcomands} {allowed commands, default - allkeys}
 ```
 
-so that looks like: `user redis_usr on >my_strong_password allcommands allkeys`
+so that looks like: `user redis_usr on >my_strong_password allcommands allkeys`.
 6. Rename the file to `redis.conf`
 
 ### Run with Docker Compose
@@ -70,6 +70,7 @@ Now open Telegram, start your bot, and have a nice game!
 ## Disclaimer
 
 This bot uses demo coins — not real money. Project was built for mastering skill and demo/portfolio purposes only.
+
 
 
 
