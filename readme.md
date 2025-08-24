@@ -5,7 +5,7 @@
 A lightweight and fun Telegram bot that brings the classic slot machine experience directly to your chat.
 Spin the reels, collect coins, and enjoy a simple casino-style game built with modern Python technologies.
 
-[![MagicSpin screenshots](https://github.com/alxww55/magicspin-telegram-bot/blob/main/magispin.png)]
+![MagicSpin screenshots](https://github.com/alxww55/magicspin-telegram-bot/blob/main/magispin.png)
 
 ## Technology stack:
 
@@ -69,5 +69,6 @@ Now open Telegram, start your bot, and have a nice game!
 ## Disclaimer
 
 This bot uses demo coins — not real money. Project was built for mastering skill and demo/portfolio purposes only.
+
 
 
