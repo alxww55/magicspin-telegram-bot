@@ -12,18 +12,21 @@ All database operations should be performed using async sessions.
 import asyncio
 import os
 import sys
+from loguru import logger
 from dotenv import load_dotenv
 from sqlalchemy import BigInteger, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
 load_dotenv()
+logger.add("logs/log.log", rotation="1 day", level="INFO", enqueue=True)
 
 engine = create_async_engine(
     url=f"postgresql+psycopg://{os.getenv("POSTGRES_USER")}:{os.getenv("POSTGRES_PASSWORD")}@{os.getenv("POSTGRES_HOST")}:{os.getenv("POSTGRES_PORT")}/{os.getenv("POSTGRES_DB")}")
 
 async_session = async_sessionmaker(engine)
 
+# Special windows event loop policy for asynchronous work with postgres
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -56,3 +59,4 @@ async def async_main() -> None:
     """Create all tables in the database if they do not exist."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    logger.info("Created tables in database")

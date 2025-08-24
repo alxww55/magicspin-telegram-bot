@@ -64,9 +64,12 @@ so that looks like: `user redis_usr on >my_strong_password allcommands allkeys`.
 2. Execute: `docker compose build`
 3. Execute `docker compose up -d`
 
-### Ready to play around
+### Ready to play
 
 Now open Telegram, start your bot, and have a nice game!
+
+### Stopping an app
+Please ensure you are stopping an app with `docker compose stop`. Using of `docker compose down` can lead to data loss.
 
 ## Disclaimer
 

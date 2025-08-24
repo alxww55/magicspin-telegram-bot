@@ -7,18 +7,22 @@ This module defines an async function that:
 """
 
 import asyncio
+from loguru import logger
 from app.cache.redis_logic import redis_client, UserSession
 import app.database.requests as rq
 
+logger.add("logs/log.log", rotation="1 day", level="INFO", enqueue=True)
 
-async def push_all_users_to_db():
+
+async def push_all_users_to_db(forced=False):
     """
     Continuously push all user coin balances from Redis to the database.
 
     - Runs indefinitely with a 60-second interval between updates.
 
     """
-    await asyncio.sleep(10)
+    if not forced:
+        await asyncio.sleep(10)
     while True:
         keys = await redis_client.keys("user_session:*")
         for key in keys:
@@ -31,4 +35,7 @@ async def push_all_users_to_db():
                 user_form_db = await rq.get_user_from_authorized(user_id)
                 coins = user_form_db.coins
                 await session.change_coins_qty(coins)
+        logger.info("Redis data was saved in DB")
+        if forced:
+            break
         await asyncio.sleep(60)

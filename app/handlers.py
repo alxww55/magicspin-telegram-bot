@@ -14,12 +14,15 @@ import asyncio
 from aiogram import F, Router, html
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
+from aiogram.types.error_event import ErrorEvent
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
+from loguru import logger
 
 import app.keyboards as kb
 from app.cache.redis_logic import UserSession
 from app.middleware import RateLimiter, RegisterUser
+from app.worker import push_all_users_to_db
 banner_text = f'🎰 {html.bold("Magic Spin - Slot machine simulator")}\n\n💸 Win {html.bold("combinations:")}\n\n7️⃣7️⃣7️⃣ = Bid Amount x10\n⬜️⬜️⬜️ = Bid Amount x5\n🍋🍋🍋 = Bid Amount x2\n🍇🍇🍇 = Bid Amount x2\n\n{html.bold("This project is a non-commercial simulation of Telegram’s slot machine dice feature. It has been developed solely for educational and demonstration purposes.")}'
 
 router = Router()
@@ -27,10 +30,13 @@ router.message.middleware(RateLimiter())
 router.callback_query.middleware(RateLimiter())
 router.callback_query.middleware(RegisterUser())
 
+logger.add("logs/log.log", rotation="1 day", level="INFO", enqueue=True)
+
 
 class AuthorizationStatus(StatesGroup):
     unathorized = State()
     authorized = State()
+
 
 async def get_coins(callback_from_handler: CallbackQuery) -> tuple:
     """
@@ -68,6 +74,7 @@ async def handle_cmd_start(message: Message, state: FSMContext) -> None:
         await state.set_state(AuthorizationStatus.unathorized)
         keyboard, correct_emoji = await kb.create_captcha_keyboard(message.from_user.id)
         await message.answer(f'Hello, {message.from_user.first_name},\nwelcome to Magic Spin Slot Machine Simulator!\n\nSolve a captcha to proceed\n\nClick on {correct_emoji} button below', reply_markup=keyboard)
+
 
 @router.callback_query(F.data.startswith("captcha:"))
 async def check_if_human(callback: CallbackQuery, state: FSMContext) -> None:
@@ -202,3 +209,24 @@ async def go_to_main_from_bid_menu(callback: CallbackQuery):
     """
     await callback.answer(None)
     await callback.message.edit_text(banner_text, parse_mode="html", reply_markup=kb.main_menu_keyboard)
+
+@router.error()
+async def log_errors(event: ErrorEvent) -> None:
+    """
+    Cathces all errors from other handlers.
+
+    Args:
+        event (ErrorEvent): Internal event, should be used to receive errors while processing Updates from Telegram.
+    """
+    logger.error(f"Error caused by {event.exception}")
+    logger.complete()
+
+@router.shutdown()
+async def save_redis_data():
+    """
+    Performs save of all data from cache to db on bot shutdown
+    """
+    logger.info("Saving cached data to database, please wait")
+    await push_all_users_to_db(forced=True)
+    logger.info("Cached data was successfully transfered to database. Shutting down...")
+
