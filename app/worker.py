@@ -29,11 +29,12 @@ async def push_all_users_to_db(forced=False):
             user_id = int(key.split(":")[1])
             session = UserSession(user_id)
             coins = await session.get_coins_qty()
-            if coins is not None:
+            if coins is not None and await session.check_authorization_status():
+                await rq.add_user_to_authorized(user_id)
                 await rq.update_user_coins(user_id, coins)
             else:
-                user_form_db = await rq.get_user_from_authorized(user_id)
-                coins = user_form_db.coins
+                user_from_db = await rq.get_user_from_authorized(user_id)
+                coins = user_from_db.coins
                 await session.change_coins_qty(coins)
         logger.info("Redis data was saved in DB")
         if forced:

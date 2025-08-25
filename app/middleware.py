@@ -50,56 +50,23 @@ class RateLimiter(BaseMiddlware):
 
         Returns:
             Callable | None: Executes the handler if user is within limits, otherwise None.
-        """
-        is_blacklisted = await db.get_user_from_blacklist(event.from_user.id)
-        if is_blacklisted:
+        """ 
+        if await db.get_user_from_blacklist(event.from_user.id):
             return
 
         user_in_db = await db.get_user_from_authorized(event.from_user.id)
         session = UserSession(event.from_user.id)
-
+        # Creates session for a user from db or from scratch
         await session.ensure_session(user_in_db)
 
         user_messages = await session.handle_messages()
-
-        if isinstance(event, Message) and user_messages > MESSAGES_PER_PERIOD:
-            if event.text and event.text.startswith("/start"):
-                await event.answer("You were blocked! Please contact administrator!")
+        
+        if user_messages > MESSAGES_PER_PERIOD:
+            if isinstance(event, Message) or isinstance(event, CallbackQuery):
                 await db.add_user_to_blacklist(event.from_user.id)
-
-        if isinstance(event, CallbackQuery) and user_messages > MESSAGES_PER_PERIOD:
-            await event.answer("You were blocked! Please contact administrator!")
-            await db.add_user_to_blacklist(event.from_user.id)
-            return
-
-        return await handler(event, data)
-
-
-class RegisterUser(BaseMiddlware):
-    """
-    Middleware to register users in the session and database.
-
-    - Checks if user is authorized on every event
-    - Ensures the user's session exists.
-    - Adds user to authorized users if not already present.
-    """
-    async def __call__(self, handler, event, data) -> Callable | None:
-        """
-        Register the user and ensure authorization status.
-
-        Args:
-            handler (Callable): The next handler in the middleware chain.
-            event (TelegramObject): Incoming Telegram event (Message or CallbackQuery).
-            data (Dict[str, Any]): Additional data passed to the handler.
-
-        Returns:
-            Callable | None: Executes the handler after ensuring registration.
-        """
-        session = UserSession(event.from_user.id)
-        await session.ensure_session()
-        auth_status = await session.check_authorization_status()
-
-        if auth_status:
-            await db.add_user_to_authorized(event.from_user.id)
-
+                await session.delete_instance()
+                await event.answer("You were blocked! Please contact administrator!")           
+                return
+            
+        await session.authorize_user()
         return await handler(event, data)

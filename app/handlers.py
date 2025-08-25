@@ -21,14 +21,13 @@ from loguru import logger
 
 import app.keyboards as kb
 from app.cache.redis_logic import UserSession
-from app.middleware import RateLimiter, RegisterUser
+from app.middleware import RateLimiter
 from app.worker import push_all_users_to_db
 banner_text = f'🎰 {html.bold("Magic Spin - Slot machine simulator")}\n\n💸 Win {html.bold("combinations:")}\n\n7️⃣7️⃣7️⃣ = Bid Amount x10\n⬜️⬜️⬜️ = Bid Amount x5\n🍋🍋🍋 = Bid Amount x2\n🍇🍇🍇 = Bid Amount x2\n\n{html.bold("This project is a non-commercial simulation of Telegram’s slot machine dice feature. It has been developed solely for educational and demonstration purposes.")}'
 
 router = Router()
 router.message.middleware(RateLimiter())
 router.callback_query.middleware(RateLimiter())
-router.callback_query.middleware(RegisterUser())
 
 logger.add("logs/log.log", rotation="1 day", level="INFO", enqueue=True)
 

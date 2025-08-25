@@ -142,3 +142,11 @@ class UserSession():
         '''
         await self.touch()
         await redis_client.hset(f"user_session:{self.user_id}", "coins", coins_amount)
+
+    async def delete_instance(self) -> None:
+        '''Delete session and all related keys
+
+        return:
+            None
+        '''
+        await redis_client.hdel(f"user_session:{self.user_id}", "id", "user_id", "messages","authorized", "coins", "timestamp")
